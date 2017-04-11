@@ -1,6 +1,6 @@
 Ern
 =================================
-Minimalist tool which will work with OAuth authentication, and will be able to connect to Slack Api and etc.
+Minimalist tool which will work with OAuth authentication, and will be able to connect to Gitter, and Slack API's and etc.
 
 Releases
 =================================
