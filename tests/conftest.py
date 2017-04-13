@@ -1,5 +1,7 @@
-from ern.slack import SlackApi
 import pytest
+
+from ern.slack import SlackApi
+
 
 ##############################################
 # Instances for the SlackApi class
