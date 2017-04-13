@@ -28,3 +28,5 @@ class SlackApi:
         else:
             msg = 'Something wrong - {}'.format(req)
         return dict_, msg
+
+print(SlackApi().test_request())
