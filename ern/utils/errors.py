@@ -4,3 +4,7 @@ class ConvertError(Exception):
 
 class SlackApiError(Exception):
     pass
+
+
+class SlackChannelError(Exception):
+    pass
