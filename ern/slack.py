@@ -16,15 +16,17 @@ class BaseApi:
         return r.get(SLACK_BASE_URL + method, **kwargs).json()
 
 
+class Channel(BaseApi):
+    @property
+    def list(self):
+        return self._get('channels.list', params={'token': self.token})
+
+
 class SlackApi(BaseApi):
     def __init__(self, token=None):
         super().__init__(token)
+        self.channels = Channel(token)
 
     def request(self):
         result = self._get('auth.test', params={'token': self.token})
-        return result
-
-    @property
-    def channels(self):
-        result = self._get('channels.list', params={'token': self.token})
         return result
