@@ -1,30 +1,30 @@
 import requests as r
 
-from ern.utils.const import TEST_SLACK_API
-from ern.utils.json import to_dict
+from ern.utils.const import SLACK_BASE_URL
+from ern.utils.errors import SlackApiError
 
 
-class SlackApi:
-    def __init__(self, url=None):
-        if url is None:
-            self.url = TEST_SLACK_API
-        else:
-            self.url = url
+class BaseApi:
+    def __init__(self, token):
+        if not token:
+            raise SlackApiError('Please provide your token')
+        self.token = token
 
-    def test_request(self):
-        """
-        :return: dict_, msg
+    BASE_URL = SLACK_BASE_URL
 
-          a tuple with response from slack,
-          and message/status that api work fine
+    def _get(self, method, **kwargs):
+        return r.get(SLACK_BASE_URL + method, **kwargs).json()
 
-          example:
-            ({'ok': True}, 'Slack work correct - <Response [200]>')
-        """
-        req = r.get(self.url)
-        dict_ = to_dict(req.text)
-        if 'ok' in dict_.keys():
-            msg = 'Slack work correct - {}'.format(req)
-        else:
-            msg = 'Something wrong - {}'.format(req)
-        return dict_, msg
+
+class SlackApi(BaseApi):
+    def __init__(self, token=None):
+        super().__init__(token)
+
+    def request(self):
+        result = self._get('auth.test', params={'token': self.token})
+        return result
+
+    @property
+    def channels(self):
+        result = self._get('channels.list', params={'token': self.token})
+        return result
