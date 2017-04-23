@@ -45,6 +45,22 @@ class BaseApi:
             raise SlackChannelError('User {} not found'.format(user_name))
         return result
 
+    def _find_by_channel_name(self, name):
+        all_channels = self.list['channels']
+        result = ''
+        chanel_names = []
+        for channel in all_channels:
+            chanel_names.append(channel['name'])
+            if name == channel['name']:
+                result = channel['id']
+        if name not in chanel_names:
+            raise SlackChannelError('Channel {} not found'.format(name))
+        return result
+
+    @property
+    def list(self):
+        return self.get('channels.list')
+
 
 class Channel(BaseApi):
     """
@@ -62,10 +78,6 @@ class Channel(BaseApi):
         if name not in chanel_names:
             raise SlackChannelError('Channel {} not found'.format(name))
         return result
-
-    @property
-    def list(self):
-        return self.get('channels.list')
 
     def history(self, name, count=100):
         name = self._find_by_channel_name(name)
@@ -137,6 +149,19 @@ class Channel(BaseApi):
         return self.post('channels.unarchive', params={'channel': channel_n})
 
 
+class Chat(BaseApi):
+    def delete(self, channel_name, time_stamp, as_user=True):
+        channel_n = self._find_by_channel_name(channel_name)
+        return self.post('chat.delete', params={'channel': channel_n,
+                                                'ts': time_stamp,
+                                                'as_user': as_user})
+
+    def message(self, channel_name, text='Test message'):
+        channel_n = self._find_by_channel_name(channel_name)
+        return self.post('chat.meMessage', params={'channel': channel_n,
+                                                   'text': text})
+
+
 class SlackApi(BaseApi):
     """
     Slack client
@@ -144,7 +169,11 @@ class SlackApi(BaseApi):
     def __init__(self, token=None):
         super().__init__(token)
         self.channels = Channel(token)
+        self.chat = Chat(token)
 
     def check_auth(self):
         result = self.get('auth.test')
         return result
+
+slack = SlackApi('xoxp-23436752675-107105968820-161085603988-6cf225603758c83398722d6e00f8aa9f')
+slack.chat.message('technical-discussions')
