@@ -1,6 +1,6 @@
 import requests as r
 
-from ern.utils.const import SLACK_BASE_URL
+from ern.const import SLACK_BASE_URL
 from ern.utils.errors import SlackApiError, SlackChannelError
 
 
@@ -110,6 +110,31 @@ class Channel(BaseApi):
     def open(self, channel_name):
         channel_n = self._find_by_channel_name(channel_name)
         return self.post('groups.open', params={'channel': channel_n})
+
+    def mark(self, channel_name, time_stamp):
+        channel_name = self._find_by_channel_name(channel_name)
+        return self.post('channels.mark', params={'channel': channel_name,
+                                                  'ts': time_stamp})
+
+    def replies(self, channel_name, thread_time_stamp):
+        channel_name = self._find_by_channel_name(channel_name)
+        return self.post('channels.replies',
+                         params={'channel': channel_name,
+                                 'thread_ts': thread_time_stamp})
+
+    def set_purpose(self, channel_name, purpose):
+        channel_n = self._find_by_channel_name(channel_name)
+        return self.post('channels.setPurpose', params={'channel': channel_n,
+                                                        'purpose': purpose})
+
+    def set_topic(self, channel_name, topic):
+        channel_n = self._find_by_channel_name(channel_name)
+        return self.post('channels.setTopic', params={'channel': channel_n,
+                                                      'topic': topic})
+
+    def unarchive(self, channel_name):
+        channel_n = self.find_by_user_name(channel_name)
+        return self.post('channels.unarchive', params={'channel': channel_n})
 
 
 class SlackApi(BaseApi):
