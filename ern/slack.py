@@ -174,6 +174,3 @@ class SlackApi(BaseApi):
     def check_auth(self):
         result = self.get('auth.test')
         return result
-
-slack = SlackApi('xoxp-23436752675-107105968820-161085603988-6cf225603758c83398722d6e00f8aa9f')
-slack.chat.message('technical-discussions')
