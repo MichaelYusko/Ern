@@ -62,6 +62,14 @@ class BaseApi:
         return self.get('channels.list')
 
 
+class Auth(BaseApi):
+    def revoke(self, test=True):
+        return self.post('auth.revoke', params={'test': test})
+
+    def check_auth(self):
+        return self.post('auth.test')
+
+
 class Channel(BaseApi):
     """
     Class which working with SLACK channels, that related to slack channels
@@ -150,16 +158,92 @@ class Channel(BaseApi):
 
 
 class Chat(BaseApi):
+    """
+    Share a me message to a channel
+
+    WARNING - all methods in the class will be refactor
+        when be added converter for the time_stamp.
+
+    you can find the issue: https://github.com/MichaelYusko/Ern/issues/17
+    """
+
     def delete(self, channel_name, time_stamp, as_user=True):
         channel_n = self._find_by_channel_name(channel_name)
         return self.post('chat.delete', params={'channel': channel_n,
                                                 'ts': time_stamp,
                                                 'as_user': as_user})
 
-    def message(self, channel_name, text='Test message'):
+    def me_message(self, channel_name, text='Test message'):
         channel_n = self._find_by_channel_name(channel_name)
         return self.post('chat.meMessage', params={'channel': channel_n,
                                                    'text': text})
+
+    def post_message(self, channel_name,
+                     text='Text message',
+                     parse=None,
+                     link_names=True,
+                     unfurl_media=False,
+                     username='My Bot',
+                     as_user=True,
+                     icon_url='http://lorempixel.com/48/48',
+                     icon_emoji=':chart_with_upwards_trend:',
+                     thread_ts=None,
+                     reply_broadcast=False):
+
+        channel_n = self._find_by_channel_name(channel_name)
+        return self.post('chat.postMessage',
+                         params={'channel': channel_n,
+                                 'text': text,
+                                 'parse': parse,
+                                 'link_names': link_names,
+                                 'unfurl_media': unfurl_media,
+                                 'username': username,
+                                 'as_user': as_user,
+                                 'icon_url': icon_url,
+                                 'icon_emoji': icon_emoji,
+                                 'thread_ts': thread_ts,
+                                 'reply_broadcast': reply_broadcast
+                                 })
+
+    def unfurl(self, channel_name, time_stamp,
+               unfurls,
+               user_auth_required=False):
+
+        channel_n = self._find_by_channel_name(channel_name)
+        return self.post('chat.unfurl',
+                         params={'channel': channel_n,
+                                 'ts': time_stamp,
+                                 'unfurls': unfurls,
+                                 'user_auth_required': user_auth_required})
+
+    def update(self, channel_name, ts,
+               text='Test update',
+               parse=None,
+               link_names=None,
+               as_user=True):
+        channel_n = self._find_by_channel_name(channel_name)
+
+        return self.post('chat.update', params={'ts': ts,
+                                                'channel': channel_n,
+                                                'text': text,
+                                                'parse': parse,
+                                                'link_names': link_names,
+                                                'as_user': as_user,
+                                                })
+
+
+class DnD(BaseApi):
+    def team_info(self, users):
+        """
+        :param users: must be list type ['Freshjelly', 'MyFriend']
+        """
+        if isinstance(users, list):
+            return self.post('dnd.teamInfo', params={'users': users})
+        else:
+            raise SlackApiError('Users argument must be list type.')
+
+    def set_snooze(self, num_minutes):
+        return self.post('dnd.setSnooze', params={'minutes': num_minutes})
 
 
 class SlackApi(BaseApi):
@@ -170,7 +254,5 @@ class SlackApi(BaseApi):
         super().__init__(token)
         self.channels = Channel(token)
         self.chat = Chat(token)
-
-    def check_auth(self):
-        result = self.get('auth.test')
-        return result
+        self.auth = Auth(token)
+        self.dnd = DnD(token)
