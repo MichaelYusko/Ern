@@ -159,8 +159,6 @@ class Channel(BaseApi):
 
 class Chat(BaseApi):
     """
-    Share a me message to a channel
-
     WARNING - all methods in the class will be refactor
         when be added converter for the time_stamp.
 
