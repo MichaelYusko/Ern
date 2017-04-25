@@ -245,8 +245,23 @@ class DnD(BaseApi):
     def set_snooze(self, num_minutes):
         return self.post('dnd.setSnooze', params={'minutes': num_minutes})
 
+    def end_snooze(self):
+        return self.post('dnd.endSnooze')
 
-class SlackApi(BaseApi):
+    def end_dnd(self):
+        return self.post('dnd.endDnd')
+
+    def info(self, user_name):
+        user_n = self.find_by_user_name(user_name)
+        return self.get('dnd.info', params={'user': user_n})
+
+
+class Emoji(BaseApi):
+    def list(self):
+        return self.get('emoji.list')
+
+
+class SlackClient(BaseApi):
     """
     Slack client
     """
@@ -256,3 +271,4 @@ class SlackApi(BaseApi):
         self.chat = Chat(token)
         self.auth = Auth(token)
         self.dnd = DnD(token)
+        self.emoji = Emoji(token)
