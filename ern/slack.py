@@ -259,6 +259,43 @@ class Emoji(BaseApi):
         return self.get('emoji.list')
 
 
+class File(BaseApi):
+    """
+    Will be added next functions for the channel:
+         delete
+         info'
+         revoke_public_url
+         shared_public_url
+         upload
+    """
+    def file_list(self):
+        """
+        Will be added next parameters:
+            :ts_from
+            :ts_to
+            :user
+            :channel
+            :types
+            :count
+            :pages
+        """
+        return self.get('files.list')
+
+
+class Group(BaseApi):
+    def archive(self, channel_name):
+        channel_n = self._find_by_channel_name(channel_name)
+        return self.post('groups.archive', params={'channel': channel_n})
+
+    def close(self, channel_name):
+        channel_n = self._find_by_channel_name(channel_name)
+        return self.post('groups.close', params={'channel': channel_n})
+
+    def create(self, name, validate=True):
+        return self.post('groups.create', params={'name': name,
+                                                  'validate': validate})
+
+
 class SlackClient(BaseApi):
     """
     Slack client
@@ -270,3 +307,5 @@ class SlackClient(BaseApi):
         self.auth = Auth(token)
         self.dnd = DnD(token)
         self.emoji = Emoji(token)
+        self.file = File(token)
+        self.group = Group(token)
