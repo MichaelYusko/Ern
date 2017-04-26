@@ -30,7 +30,7 @@ class BaseApi:
     def user_list(self):
         return self.get('users.list')
 
-    def find_by_user_name(self, user_name):
+    def _get_user(self, user_name):
         """
         Method will be refactor
         """
@@ -45,7 +45,7 @@ class BaseApi:
             raise SlackChannelError('User {} not found'.format(user_name))
         return result
 
-    def _find_by_channel_name(self, name):
+    def _get_channel(self, name):
         all_channels = self.list['channels']
         result = ''
         chanel_names = []
@@ -77,73 +77,84 @@ class Channel(BaseApi):
     """
 
     def history(self, name, count=100):
-        name = self._find_by_channel_name(name)
-        return self.get('channels.history', params={'channel': name,
-                                                    'count': count})
+        return self.get('channels.history',
+                        params={
+                            'channel': self._get_channel(name),
+                            'count': count}
+                        )
 
     def create(self, channel_name, validate=False):
-        return self.post('channels.create', params={'name': channel_name,
-                                                    'validate': validate})
+        return self.post('channels.create',
+                         params={'name': self._get_channel(channel_name),
+                                 'validate': validate}
+                         )
 
     def info(self, channel_name):
-        name = self._find_by_channel_name(channel_name)
-        return self.get('channels.info', params={'channel': name})
+        return self.get('channels.info',
+                        params={'channel': self._get_channel(channel_name)})
 
     def invite(self, channel_name, user_name):
-        channel_n = self._find_by_channel_name(channel_name)
-        user_n = self.find_by_user_name(user_name)
-        return self.post('channels.invite', params={'channel': channel_n,
-                                                    'user': user_n})
+        return self.post('channels.invite',
+                         params={'channel': self._get_channel(channel_name),
+                                 'user': self._get_user(user_name)}
+                         )
 
     def join(self, channel_name, validate=True):
-        return self.post('channels.join', params={'name': channel_name,
-                                                  'validate': validate})
+        return self.post('channels.join',
+                         params={'name': self._get_channel(channel_name),
+                                 'validate': validate}
+                         )
 
     def kick(self, channel_name, user_name):
-        channel_n = self._find_by_channel_name(channel_name)
-        user_n = self.find_by_user_name(user_name)
-        return self.post('channels.kick', params={'channel': channel_n,
-                                                  'user': user_n})
+        return self.post('channels.kick',
+                         params={'channel': self._get_channel(channel_name),
+                                 'user': self._get_user(user_name)}
+                         )
 
     def leave(self, channel_name):
-        channel_n = self._find_by_channel_name(channel_name)
-        return self.post('channels.leave', params={'channel': channel_n})
+        return self.post('channels.leave',
+                         params={'channel': self._get_channel(channel_name)})
 
-    def rename(self, old_channel_name, new_channel_name,
+    def rename(self, old_name, new_channel_name,
                validate=True):
-        old_name = self._find_by_channel_name(old_channel_name)
-        return self.post('channels.rename', params={'channel': old_name,
-                                                    'name': new_channel_name,
-                                                    'validate': validate})
+        return self.post('channels.rename',
+                         params={
+                             'channel': self._get_channel(old_name),
+                             'name': new_channel_name,
+                             'validate': validate}
+                         )
 
     def open(self, channel_name):
-        channel_n = self._find_by_channel_name(channel_name)
-        return self.post('groups.open', params={'channel': channel_n})
+        return self.post('groups.open',
+                         params={'channel': self._get_channel(channel_name)}
+                         )
 
     def mark(self, channel_name, time_stamp):
-        channel_name = self._find_by_channel_name(channel_name)
-        return self.post('channels.mark', params={'channel': channel_name,
-                                                  'ts': time_stamp})
+        return self.post('channels.mark',
+                         params={'channel': self._get_channel(channel_name),
+                                 'ts': time_stamp}
+                         )
 
     def replies(self, channel_name, thread_time_stamp):
-        channel_name = self._find_by_channel_name(channel_name)
         return self.post('channels.replies',
-                         params={'channel': channel_name,
+                         params={'channel': self._get_channel(channel_name),
                                  'thread_ts': thread_time_stamp})
 
     def set_purpose(self, channel_name, purpose):
-        channel_n = self._find_by_channel_name(channel_name)
-        return self.post('channels.setPurpose', params={'channel': channel_n,
-                                                        'purpose': purpose})
+        return self.post('channels.setPurpose',
+                         params={'channel': self._get_channel(channel_name),
+                                 'purpose': purpose}
+                         )
 
     def set_topic(self, channel_name, topic):
-        channel_n = self._find_by_channel_name(channel_name)
-        return self.post('channels.setTopic', params={'channel': channel_n,
-                                                      'topic': topic})
+        return self.post('channels.setTopic',
+                         params={'channel': self._get_channel(channel_name),
+                                 'topic': topic}
+                         )
 
     def unarchive(self, channel_name):
-        channel_n = self.find_by_user_name(channel_name)
-        return self.post('channels.unarchive', params={'channel': channel_n})
+        return self.post('channels.unarchive',
+                         params={'channel': self._get_channel(channel_name)})
 
 
 class Chat(BaseApi):
@@ -155,31 +166,26 @@ class Chat(BaseApi):
     """
 
     def delete(self, channel_name, time_stamp, as_user=True):
-        channel_n = self._find_by_channel_name(channel_name)
-        return self.post('chat.delete', params={'channel': channel_n,
-                                                'ts': time_stamp,
-                                                'as_user': as_user})
+        return self.post('chat.delete',
+                         params={'channel': self._get_channel(channel_name),
+                                 'ts': time_stamp,
+                                 'as_user': as_user})
 
     def me_message(self, channel_name, text='Test message'):
-        channel_n = self._find_by_channel_name(channel_name)
-        return self.post('chat.meMessage', params={'channel': channel_n,
-                                                   'text': text})
+        return self.post('chat.meMessage',
+                         params={'channel': self._get_channel(channel_name),
+                                 'text': text}
+                         )
 
-    def post_message(self, channel_name,
-                     text='Text message',
-                     parse=None,
-                     link_names=True,
-                     unfurl_media=False,
-                     username='My Bot',
-                     as_user=True,
-                     icon_url='http://lorempixel.com/48/48',
+    def post_message(self, channel_name, text='Text message',
+                     parse=None, link_names=True,
+                     unfurl_media=False, username='My Bot',
+                     as_user=True, icon_url='http://lorempixel.com/48/48',
                      icon_emoji=':chart_with_upwards_trend:',
-                     thread_ts=None,
-                     reply_broadcast=False):
+                     thread_ts=None, reply_broadcast=False):
 
-        channel_n = self._find_by_channel_name(channel_name)
         return self.post('chat.postMessage',
-                         params={'channel': channel_n,
+                         params={'channel': self._get_channel(channel_name),
                                  'text': text,
                                  'parse': parse,
                                  'link_names': link_names,
@@ -193,30 +199,25 @@ class Chat(BaseApi):
                                  })
 
     def unfurl(self, channel_name, time_stamp,
-               unfurls,
-               user_auth_required=False):
+               unfurls, user_auth_required=False):
 
-        channel_n = self._find_by_channel_name(channel_name)
         return self.post('chat.unfurl',
-                         params={'channel': channel_n,
+                         params={'channel': self._get_channel(channel_name),
                                  'ts': time_stamp,
                                  'unfurls': unfurls,
                                  'user_auth_required': user_auth_required})
 
-    def update(self, channel_name, ts,
-               text='Test update',
-               parse=None,
-               link_names=None,
-               as_user=True):
-        channel_n = self._find_by_channel_name(channel_name)
+    def update(self, channel_name, ts, text='Test update',
+               parse=None, link_names=None, as_user=True):
 
-        return self.post('chat.update', params={'ts': ts,
-                                                'channel': channel_n,
-                                                'text': text,
-                                                'parse': parse,
-                                                'link_names': link_names,
-                                                'as_user': as_user,
-                                                })
+        return self.post('chat.update',
+                         params={'ts': ts,
+                                 'channel': self._get_channel(channel_name),
+                                 'text': text,
+                                 'parse': parse,
+                                 'link_names': link_names,
+                                 'as_user': as_user}
+                         )
 
 
 class DnD(BaseApi):
@@ -239,8 +240,7 @@ class DnD(BaseApi):
         return self.post('dnd.endDnd')
 
     def info(self, user_name):
-        user_n = self.find_by_user_name(user_name)
-        return self.get('dnd.info', params={'user': user_n})
+        return self.get('dnd.info', params={'user': self._get_user(user_name)})
 
 
 class Emoji(BaseApi):
@@ -273,12 +273,12 @@ class File(BaseApi):
 
 class Group(BaseApi):
     def archive(self, channel_name):
-        channel_n = self._find_by_channel_name(channel_name)
-        return self.post('groups.archive', params={'channel': channel_n})
+        return self.post('groups.archive',
+                         params={'channel': self._get_channel(channel_name)})
 
     def close(self, channel_name):
-        channel_n = self._find_by_channel_name(channel_name)
-        return self.post('groups.close', params={'channel': channel_n})
+        return self.post('groups.close',
+                         params={'channel': self._get_channel(channel_name)})
 
     def create(self, name, validate=True):
         return self.post('groups.create', params={'name': name,
