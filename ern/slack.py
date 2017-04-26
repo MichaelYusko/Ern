@@ -75,17 +75,6 @@ class Channel(BaseApi):
     Class which working with SLACK channels, that related to slack channels
     need to put here
     """
-    def _find_by_channel_name(self, name):
-        all_channels = self.list['channels']
-        result = ''
-        chanel_names = []
-        for channel in all_channels:
-            chanel_names.append(channel['name'])
-            if name == channel['name']:
-                result = channel['id']
-        if name not in chanel_names:
-            raise SlackChannelError('Channel {} not found'.format(name))
-        return result
 
     def history(self, name, count=100):
         name = self._find_by_channel_name(name)
