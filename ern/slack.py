@@ -31,31 +31,34 @@ class BaseApi:
         return self.get('users.list')
 
     def _get_user(self, user_name):
-        """
-        Method will be refactor
-        """
-        all_users = self.user_list['members']
         result = ''
-        members = []
-        for user in all_users:
-            members.append(user['name'])
-            if user_name == user['name']:
-                result = user['id']
-        if user_name not in members:
-            raise SlackChannelError('User {} not found'.format(user_name))
-        return result
+        if user_name:
+            all_users = self.user_list['members']
+            members = []
+            for user in all_users:
+                members.append(user['name'])
+                if user_name == user['name']:
+                    result = user['id']
+            if user_name not in members:
+                raise SlackChannelError('User {} not found'.format(user_name))
+            return result
+        else:
+            return result
 
     def _get_channel(self, name):
-        all_channels = self.list['channels']
         result = ''
-        chanel_names = []
-        for channel in all_channels:
-            chanel_names.append(channel['name'])
-            if name == channel['name']:
-                result = channel['id']
-        if name not in chanel_names:
-            raise SlackChannelError('Channel {} not found'.format(name))
-        return result
+        if name:
+            all_channels = self.list['channels']
+            chanel_names = []
+            for channel in all_channels:
+                chanel_names.append(channel['name'])
+                if name == channel['name']:
+                    result = channel['id']
+            if name not in chanel_names:
+                raise SlackChannelError('Channel {} not found'.format(name))
+            return result
+        else:
+            return result
 
     @property
     def list(self):
@@ -251,24 +254,39 @@ class Emoji(BaseApi):
 class File(BaseApi):
     """
     Will be added next functions for the channel:
-         delete
-         info'
-         revoke_public_url
-         shared_public_url
          upload
     """
-    def file_list(self):
-        """
-        Will be added next parameters:
-            :ts_from
-            :ts_to
-            :user
-            :channel
-            :types
-            :count
-            :pages
-        """
-        return self.get('files.list')
+    def file_list(self, user_name=None, channe_name=None,
+                  ts_from=None, ts_to=None,
+                  types=None, count=None,
+                  page=None):
+
+        return self.get('files.list',
+                        params={'user': self._get_user(user_name),
+                                'channel': self._get_channel(channe_name),
+                                'ts_from': ts_from,
+                                'ts_to': ts_to,
+                                'types': types,
+                                'page': page,
+                                'count': count}
+                        )
+
+    def delete(self, file):
+        return self.post('files.delete', params={'file': file})
+
+    def info(self, file, count=None, page=None):
+        return self.get('files.info', params={'file': file,
+                                              'count': count,
+                                              'page': page})
+
+    def revoke_public_url(self, file):
+        return self.post('files.revokePublicURL', params={'file': file})
+
+    def shared_public_url(self, file):
+        return self.post('files.sharedPublicURL', params={'file': file})
+
+    def upload(self, file):
+        pass
 
 
 class Group(BaseApi):
@@ -284,6 +302,63 @@ class Group(BaseApi):
         return self.post('groups.create', params={'name': name,
                                                   'validate': validate})
 
+    def create_child(self, channel_name):
+        return self.post('groups.createChild',
+                         params={'channel': self._get_channel(channel_name)}
+                         )
+
+    def history(self, channel_name, latest=None, oldest=None,
+                inclusive=None, count=None, unreads=None):
+        return self.post('groups.history',
+                         params={'channel': self._get_channel(channel_name),
+                                 'latest': latest,
+                                 'oldest': oldest,
+                                 'inclusive': inclusive,
+                                 'count': count,
+                                 'unreads': unreads}
+                         )
+
+    def info(self, channel_name):
+        return self.get('groups.info',
+                        params={'channel': self._get_channel(channel_name)})
+
+    def invite(self, channel_name, user_name):
+        return self.post('groups.invite',
+                         params={'channel': self._get_channel(channel_name),
+                                 'user': self._get_user(user_name)}
+                         )
+
+    def kick(self, channel_name, user_name):
+        return self.post('groups.kick',
+                         params={'channel': self._get_channel(channel_name),
+                                 'user': self._get_user(user_name)}
+                         )
+
+    def leave(self, channel_name):
+        return self.post('groups.kick',
+                         params={'channel': self._get_channel(channel_name)})
+
+    def list(self, exclude_archived=None):
+        return self.get('groups.list',
+                        params={'exclude_archived': exclude_archived})
+
+    def mark(self, channel_name, time_stamp):
+        return self.post(
+            'groups.mark',
+            params={
+                'channel_name': self._get_channel(channel_name),
+                'ts': time_stamp
+            }
+        )
+
+    def open(self, channel_name):
+        return self.post(
+            'groups.open',
+            params={
+                'channel_name': self._get_channel(channel_name)
+            }
+        )
+
 
 class SlackClient(BaseApi):
     """
@@ -291,7 +366,7 @@ class SlackClient(BaseApi):
     """
     def __init__(self, token=None):
         super().__init__(token)
-        self.channels = Channel(token)
+        self.channel = Channel(token)
         self.chat = Chat(token)
         self.auth = Auth(token)
         self.dnd = DnD(token)
