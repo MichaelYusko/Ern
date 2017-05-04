@@ -360,6 +360,40 @@ class Group(BaseApi):
         )
 
 
+class Team(BaseApi):
+    def access_logs(self, count=100, page=1):
+        return self.get('team.accessLogs',
+                        params={'count': count, 'page': page})
+
+    def billable_info(self, user_name):
+        return self.get('team.billableInfo',
+                        params={'user': self._get_user(user_name)})
+
+    @property
+    def info(self):
+        return self.get('team.info')
+
+    def integration_logs(self, user_name='', count=100, page=1,
+                         service_id=None, app_id=None,
+                         change_type=None):
+        return self.get(
+            'team.integrationLogs',
+            params={
+                'user': self._get_user(user_name),
+                'count': count,
+                'page': page,
+                'service_id': service_id,
+                'app_id': app_id,
+                'change_type': change_type
+            }
+        )
+
+
+class TeamProfile(BaseApi):
+    def get_profile(self, visibility=None):
+        return self.get('team.profile.get', params={'visibility': visibility})
+
+
 class SlackClient(BaseApi):
     """
     Slack client
@@ -373,3 +407,5 @@ class SlackClient(BaseApi):
         self.emoji = Emoji(token)
         self.file = File(token)
         self.group = Group(token)
+        self.team = Team(token)
+        self.team_profile = TeamProfile(token)
