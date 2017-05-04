@@ -1,5 +1,5 @@
 
-from .errors import ConvertError
+from ern.errors import ConvertError
 
 
 def to_dict(obj=None):
