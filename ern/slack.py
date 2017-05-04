@@ -394,6 +394,25 @@ class TeamProfile(BaseApi):
         return self.get('team.profile.get', params={'visibility': visibility})
 
 
+class RTM(BaseApi):
+    @property
+    def connect(self):
+        return self.get('rtm.connect')
+
+    def start(self, simple_latest=False, no_unreads=False,
+              mpim_aware=None, no_latest=False):
+
+        return self.post(
+            'rtm.start',
+            params={
+                'simple_latest': simple_latest,
+                'no_unreads': no_unreads,
+                'mpim_aware': mpim_aware,
+                'no_latest': no_latest
+            }
+        )
+
+
 class SlackClient(BaseApi):
     """
     Slack client
@@ -409,3 +428,4 @@ class SlackClient(BaseApi):
         self.group = Group(token)
         self.team = Team(token)
         self.team_profile = TeamProfile(token)
+        self.rtm = RTM(token)
