@@ -1,7 +1,7 @@
 import requests as r
 
 from ern.const import SLACK_BASE_URL
-from ern.utils.errors import SlackApiError, SlackChannelError
+from ern.errors import SlackApiError, SlackChannelError
 
 
 class BaseApi:
