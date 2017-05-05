@@ -1,5 +1,6 @@
 import requests as r
 
+from ern.const import GITTER_BASE_URL
 from ern.errors import GitterTokenError
 
 
@@ -11,7 +12,7 @@ class BaseApi:
 
     def request_process(self, method, api, **kwargs):
         kwargs.setdefault('Authorization', 'Bearer ' + self.token)
-        return method('https://api.gitter.im/v1/' + api, headers=kwargs).json()
+        return method(GITTER_BASE_URL + api, headers=kwargs).json()
 
     def get(self, api, **kwargs):
         return self.request_process(r.get, api, **kwargs)

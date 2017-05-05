@@ -21,5 +21,6 @@ class TestGitter(unittest.TestCase):
         )
         self.assertTrue(json_data, self.auth.check_auth)
 
+
 if __name__ == '__main__':
     unittest.main()
