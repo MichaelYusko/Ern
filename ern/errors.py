@@ -2,6 +2,9 @@ class ConvertError(Exception):
     pass
 
 
+############################
+# Error classes for Slack API
+############################
 class SlackApiError(Exception):
     pass
 
@@ -23,4 +26,11 @@ class SlackUserError(Exception):
 
 
 class SlackTokenError(Exception):
+    def __str__(self): return 'Please provide your token'
+
+
+############################
+# Error classes for Gitter API
+############################
+class GitterTokenError(Exception):
     def __str__(self): return 'Please provide your token'
