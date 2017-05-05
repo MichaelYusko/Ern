@@ -1,7 +1,7 @@
 import requests as r
 
 from ern.const import SLACK_BASE_URL
-from ern.errors import SlackApiError, SlackChannelError
+from ern.errors import SlackApiError, SlackChannelError, SlackUserError
 
 
 class BaseApi:
@@ -40,7 +40,7 @@ class BaseApi:
                 if user_name == user['name']:
                     result = user['id']
             if user_name not in members:
-                raise SlackChannelError('User {} not found'.format(user_name))
+                raise SlackUserError(user_name)
             return result
         else:
             return result
@@ -55,7 +55,7 @@ class BaseApi:
                 if name == channel['name']:
                     result = channel['id']
             if name not in chanel_names:
-                raise SlackChannelError('Channel {} not found'.format(name))
+                raise SlackChannelError(name)
             return result
         else:
             return result
