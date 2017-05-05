@@ -1,7 +1,9 @@
-import unittest
-from ern.gitter import Auth
-from mock import patch, Mock
 import json
+import unittest
+
+from mock import Mock, patch
+
+from ern.gitter import Auth
 
 
 class TestGitter(unittest.TestCase):
