@@ -1,5 +1,4 @@
 flake8==3.3.0
 isort==4.2.5
 requests==2.13.0
-pytest==3.0.7
 mock==2.0.0
