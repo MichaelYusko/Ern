@@ -1,7 +1,8 @@
 import requests as r
 
 from ern.const import SLACK_BASE_URL
-from ern.errors import SlackApiError, SlackChannelError, SlackUserError
+from ern.errors import (SlackApiError, SlackChannelError, SlackTokenError,
+                        SlackUserError)
 
 
 class BaseApi:
@@ -13,7 +14,7 @@ class BaseApi:
     """
     def __init__(self, token):
         if not token:
-            raise SlackApiError('Please provide your token')
+            raise SlackTokenError
         self.token = token
 
     def _request_process(self, method, api, **kwargs):
